@@ -1,0 +1,20 @@
+
+version: '3'
+
+services:
+  db:
+    container_name: ${MONGODB_NAME}
+    image: mongo:6.0
+    volumes:
+      - natalianatalia-vol:/data/db
+    ports:
+      - ${MONGODB_PORT}:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+    restart: always
+    command: ['--auth']
+
+volumes:
+ natalianatalia-vol:
+    external: false
