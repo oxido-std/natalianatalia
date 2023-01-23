@@ -1,12 +1,29 @@
-import { Entity } from "typeorm";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+import { text } from 'stream/consumers';
 
-@Entity({name:'profiles'})
-export class Profile {
+@Schema()
+export class Profile extends Document {
 
-    // @PrimaryGeneratedColumn('uuid')
-    // id:string;
-    
-    // @Column( type:'text',{})
-    // name:string;
+    // id: string // Mongo me lo da
+    @Prop({
+        unique: true,
+        index: true,
+    })
+    name: string;
+    @Prop({
+        type:Number
+    })
+    createdAt: number;
+    @Prop({
+        type:Number
+    })
+    updatedAt: number;
+    @Prop({
+        type:Boolean
+    })
+    isActive: boolean;
 
 }
+
+export const ProfileSchema = SchemaFactory.createForClass( Profile );

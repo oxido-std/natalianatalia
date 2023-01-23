@@ -1,14 +1,20 @@
-import { IsString, MinLength } from "class-validator";
-import { IsUUID } from "class-validator/types/decorator/decorators";
+import { IsBoolean, IsDateString, IsMongoId, IsOptional, IsString, MinLength } from "class-validator";
 
 export class CreateProfileDto {
 
 
-    id:number;
+    @IsOptional()
+    @IsMongoId()
+    id:string;
     @IsString()
     @MinLength(1)
     name:string;
-    createdAt:string;
+    @IsOptional()
+    createdAt:number;
+    @IsOptional()
+    updatedAt:number;
+    @IsOptional()
+    @IsBoolean()
     isActive:boolean;
 
 }

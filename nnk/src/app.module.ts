@@ -1,43 +1,37 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import * as dotenv from 'dotenv'
 import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 
 import { EnvConfiguration } from './common/config/app.config';
 
 import { ProfilesModule } from './profiles/profiles.module';
 import { SabuesosModule } from './sabuesos/sabuesos.module';
 import { BuchesModule } from './buches/buches.module';
-import { ProfilesMetadataModule } from './profiles_metadata/profiles_metadata.module';
 import { SabuesosToProfileMetadataModule } from './sabuesos_to_profile_metadata/sabuesos_to_profile_metadata.module';
 import { ProfilesHistoryModule } from './profiles_history/profiles_history.module';
-import { BuchesToProfilesMetadataModule } from './buches_to_profiles_metadata/buches_to_profiles_metadata.module';
 import { ProfilesDataModule } from './profiles_data/profiles_data.module';
 import { BuchesToProfilesDataModule } from './buches_to_profiles_data/buches_to_profiles_data.module';
 import { ProfilesFilesModule } from './profiles_files/profiles_files.module';
+import { SeedModule } from './seed/seed.module';
+
+dotenv.config();
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       load: [ EnvConfiguration ],
     }),
-    // TypeOrmModule.forRoot({      
-    //   type: 'mysql',
-    //   host: process.env.DB_HOST,
-    //   port: +process.env.DB_PORT,
-    //   database: process.env.DB_NAME,
-    //   username: process.env.DB_USER,
-    //   password: process.env.DB_PASSW,
-    //   autoLoadEntities: true,
-    //   // synchronize: true // solo para DEV
-    // }),
+    MongooseModule.forRoot(`mongodb://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}:${process.env.MONGODB_PORT}`),
     ProfilesModule, 
     SabuesosModule, 
     BuchesModule, 
-    ProfilesMetadataModule, 
     SabuesosToProfileMetadataModule, 
     ProfilesHistoryModule, 
-    BuchesToProfilesMetadataModule, 
-    ProfilesDataModule, BuchesToProfilesDataModule, ProfilesFilesModule],
+    ProfilesDataModule,
+    BuchesToProfilesDataModule,
+    ProfilesFilesModule,
+    SeedModule],
   controllers: [],
   providers: [],
 })

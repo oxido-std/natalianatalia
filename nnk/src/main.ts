@@ -13,6 +13,8 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
+      // deshabilitarlo en caso de subirlo a algún sitio.
+      disableErrorMessages:true,
     })
   );
   
