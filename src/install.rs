@@ -16,62 +16,105 @@ pub fn setup() {
 
     let conn=get_db_connection();
     
-    conn.execute("CREATE TABLE records (
+    // Tangas es el nombre de los targets.
+    
+    conn.execute("CREATE TABLE tangas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name VARCHAR(50) NOT NULL,
-        amount FLOAT NOT NULL,
-        amount_io VARCHAR(3) NOT NULL,
-        comment TEXT NULL,
-        record_date TEXT NOT NULL,
-        category_id INTEGER NOT NULL,
         created_at TEXT NOT NULL,
         updated_at TEXT NULL,
         is_deleted BOOLEAN NOT NULL,
-        is_mutable BOOLEAN NOT NULL
       )", []).unwrap();
 
-      conn.execute("CREATE TABLE categories (
+    // Datos de la tanga.
+    // EJ. email, nombre, alias, etc.
+    
+    conn.execute("CREATE TABLE data_tangas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name VARCHAR(50) NOT NULL,
+        val VARCHAR(255) NOT NULL,
+        id_tanga INTEGER NOT NULL,
         created_at TEXT NOT NULL,
         updated_at TEXT NULL,
-        is_deleted BOOLEAN NOT NULL
+        is_deleted BOOLEAN NOT NULL,
+        FOREIGN KEY (id_tanga)
+          REFERENCES tangas (id) 
       )", []).unwrap();
 
-      conn.execute("CREATE TABLE credits (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(50) NOT NULL,
-        comment TEXT NULL,
-        amount FLOAT NOT NULL,
-        payments INTEGER NOT NULL,
-        started_at TEXT NOT NULL,
-        finish_at TEXT NOT NULL,
-        category_id INTEGER NOT NULL,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NULL,
-        is_deleted BOOLEAN NOT NULL
-      )", []).unwrap();
-      
-      conn.execute("CREATE TABLE dolars (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(50) NOT NULL,
-        amount FLOAT NOT NULL,
-        source VARCHAR(255) NOT NULL,
-        created_at TEXT NOT NULL,
-        is_deleted BOOLEAN NOT NULL
-      )", []).unwrap();
+    // Listado de scripts
+
+    conn.execute("CREATE TABLE scripts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name VARCHAR(50) NOT NULL,
+      path VARCHAR(255) NOT NULL,
+      comment TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NULL,
+      is_deleted BOOLEAN NOT NULL,
+    )", []).unwrap();
+
+    // Comandos del script
+    // todo: Acá debería ver como enlazo los datos con los comandos.
+    
+    conn.execute("CREATE TABLE scripts_commands (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      command_name VARCHAR(50) NOT NULL,
+      command VARCHAR(50) NOT NULL,
+      comment TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NULL,
+      is_deleted BOOLEAN NOT NULL,
+    )", []).unwrap();
+
+    // reglas de ejecución:
+    // All AT ONCE = Crea un gran commando Ej. sherlock -u pepe1 -u2 pepe2 -u3 email@gmail.com
+    // 1By1 = Ejecuta el comando para cada uno de los datos asociados al comando.
+    // CUSTOM = Crea una regla especial de ejecución.
+
+    // Todas estas reglas se almacenan en un log de ejecución.
+
+    // todo: Acá debería ver como enlazo los datos con los comandos.
+    
+    conn.execute("CREATE TABLE scripts_exe_rules (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id_script INTEGER NOT NULL,
+      name VARCHAR(50) NOT NULL,
+      path VARCHAR(255) NOT NULL,
+      comment TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NULL,
+      is_deleted BOOLEAN NOT NULL,
+      FOREIGN KEY (id_script)
+          REFERENCES scripts (id)
+    )", []).unwrap();
+
+    // Log de ejecuciones. Almacena los comandos y si guardó un archivo.
+    
+    conn.execute("CREATE TABLE log_exe (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id_script INTEGER NOT NULL,
+      id_exe_rule INTEGER NOT NULL,
+      created_at TEXT NOT NULL,
+      is_deleted BOOLEAN NOT NULL,
+      FOREIGN KEY (id_script)
+          REFERENCES scripts (id)
+      FOREIGN KEY (id_exe_rule)
+        REFERENCES scripts_exe_rules (id)
+    )", []).unwrap();
+
     
 }
 
 pub fn populate_categories(){
 
-  let conn=get_db_connection();
+  todo!();
+  // let conn=get_db_connection();
 
-  let categories_arr=["Arreglos De La Casa","Bazar","Comida","Crédito","Educación","Extra","Juegos","Ropa","Serv. De Agua","Serv. De Electricidad","Serv. De Gas","Serv. De Internet","Servicio","Sueldo","Suscripción","Teléfono","Transporte","Libros","Salud Mental","Salud","Monotributo","Impuestos","_random","Informática"];
+  // let categories_arr=[""];
 
-  for cat in categories_arr{
-    conn.execute("INSERT INTO categories (name,created_at,updated_at,is_deleted) VALUES (?1,datetime('now'),datetime('now'),false)",
-    &[&cat.to_string()]).unwrap();
-  }
+  // for cat in categories_arr{
+  //   conn.execute("INSERT INTO categories (name,created_at,updated_at,is_deleted) VALUES (?1,datetime('now'),datetime('now'),false)",
+  //   &[&cat.to_string()]).unwrap();
+  // }
 
 }
