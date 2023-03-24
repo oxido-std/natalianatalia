@@ -1,0 +1,24 @@
+{
+    "Pepito":[
+        {
+            "name":"Email",
+            "val":"Pepito@hotmail.com",
+            "type":"String"
+        },
+        {
+            "name":"Twitter",
+            "val":"pepito_3copas",
+            "type":"String"
+        },
+        {
+            "name":"edad",
+            "val":"21",
+            "type":"i8"
+        },
+        {
+            "name":"Facebook",
+            "val":"Pepito Rodriguez del Río",
+            "type":"String"
+        }
+    ]
+}

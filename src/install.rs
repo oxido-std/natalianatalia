@@ -1,132 +1,101 @@
+use std::fs::DirBuilder;
+use std::fs::File;
+use std::io::Write;
+
 use actix_web::{HttpResponse, Responder, get};
 use serde_json::json;
 
-use super::db_conn::get_db_connection;
+// use super::db_conn::get_db_connection;
 
-#[get("/install")]
-pub async fn req_seed_setup() -> impl Responder {
-    setup();
-    populate_categories();
-    const MESSAGE: &str = "Creating DB with Tables & populate tables";
+#[get("/new_project/")]
+pub async fn req_project_setup() -> impl Responder {
+  setup();
+  const MESSAGE: &str = "Nuevo proyecto creado.";
 
-    HttpResponse::Ok().json(json!({"status": "success","message": MESSAGE}))
+  HttpResponse::Ok().json(json!({"status": "200","message": MESSAGE}))
 }
 
 pub fn setup() {
 
-    let conn=get_db_connection();
-    
-    // Tangas es el nombre de los targets.
-    
-    conn.execute("CREATE TABLE tangas (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(50) NOT NULL,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NULL,
-        is_deleted BOOLEAN NOT NULL,
-      )", []).unwrap();
+  // El nombre del proyecto lo obtiene del parámetro que se le envía
 
-    // Datos de la tanga.
-    // Al momento de hacer el QUERY utilizar la función TYPEOF(val) para obtener el tipo de dato y así manejarlo mejor en RUST.
-    // EJ. email, nombre, alias, etc.
-    
-    conn.execute("CREATE TABLE data_tangas (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(50) NOT NULL,
-        val VARCHAR(255) NOT NULL,
-        id_tanga INTEGER NOT NULL,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NULL,
-        is_deleted BOOLEAN NOT NULL,
-        FOREIGN KEY (id_tanga)
-          REFERENCES tangas (id) 
-      )", []).unwrap();
+  let project_dir="project_example";
+  create_directories(project_dir.to_string());
+  create_tanga_example(project_dir.to_string());
+  create_exec_rules(project_dir.to_string());
+  // Ahora tiene que crear el log en una base datos sqlite
+  // una tabla de execution rules?
 
-    // Listado de scripts
-    // Status: 0- No instalado / 1- Instalado /3 Error
-
-    conn.execute("CREATE TABLE scripts (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name VARCHAR(50) NOT NULL,
-      path VARCHAR(255) NOT NULL,
-      comment TEXT,
-      status INTEGER NOT NULL,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NULL,
-      is_deleted BOOLEAN NOT NULL,
-    )", []).unwrap();
-
-    // Comandos del script
-    // todo: Acá debería ver como enlazo los datos con los comandos.
-    
-    conn.execute("CREATE TABLE scripts_commands (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      command_name VARCHAR(50) NOT NULL,
-      command VARCHAR(50) NOT NULL,
-      comment TEXT,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NULL,
-      is_deleted BOOLEAN NOT NULL,
-    )", []).unwrap();
-
-    // reglas de ejecución:
-    // All AT ONCE = Crea un gran commando Ej. sherlock -u pepe1 -u2 pepe2 -u3 email@gmail.com
-    // 1By1 = Ejecuta el comando para cada uno de los datos asociados al comando.
-    // CUSTOM = Crea una regla especial de ejecución.
-
-    // Todas estas reglas se almacenan en un log de ejecución.
-    
-    conn.execute("CREATE TABLE scripts_exec_rules (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      id_script INTEGER NOT NULL,
-      name VARCHAR(50) NOT NULL,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NULL,
-      is_deleted BOOLEAN NOT NULL,
-      FOREIGN KEY (id_script)
-          REFERENCES scripts (id)
-    )", []).unwrap();
-
-    // Estatabla vincula las reglas de ejecución con la data
-
-    conn.execute("CREATE TABLE exec_rules_2_data (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      id_exec_rule INTEGER NOT NULL,
-      id_data INTEGER NOT NULL,
-      is_deleted BOOLEAN NOT NULL,
-      FOREIGN KEY (id_exec_rule)
-          REFERENCES scripts_exec_rules (id)
-      FOREIGN KEY (id_data)
-          REFERENCES data_tangas (id)
-    )", []).unwrap();
-
-    // Log de ejecuciones. Almacena los comandos y si guardó un archivo.
-    
-    conn.execute("CREATE TABLE log_exec (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      id_script INTEGER NOT NULL,
-      id_exec_rule INTEGER NOT NULL,
-      created_at TEXT NOT NULL,
-      is_deleted BOOLEAN NOT NULL,
-      FOREIGN KEY (id_script)
-          REFERENCES scripts (id)
-      FOREIGN KEY (id_exe_rule)
-        REFERENCES scripts_exe_rules (id)
-    )", []).unwrap();
-
-    
+  
 }
 
-pub fn populate_categories(){
+fn create_directories(project_dir:String){
+  let builder = DirBuilder::new();
 
-  todo!();
-  // let conn=get_db_connection();
+  let directories=vec![
+    "exec_rules",
+    "logs",
+    "tangas",
+  ];
 
-  // let categories_arr=[""];
+  builder.create(&project_dir).expect("Error al crear la carpeta");
+  for d in directories{
+    builder.create(format!("{}/{}",&project_dir,d)).expect("Error al crear la carpeta: {d}");
+  }
+}
 
-  // for cat in categories_arr{
-  //   conn.execute("INSERT INTO categories (name,created_at,updated_at,is_deleted) VALUES (?1,datetime('now'),datetime('now'),false)",
-  //   &[&cat.to_string()]).unwrap();
-  // }
+fn create_tanga_example(project_dir:String){
+  let content="{
+    \"Pepito\":[
+        {
+            \"name\":\"Email\",
+            \"val\":\"Pepito@hotmail.com\",
+            \"type\":\"String\"
+        },
+        {
+            \"name\":\"Twitter\",
+            \"val\":\"pepito_3copas\",
+            \"type\":\"String\"
+        },
+        {
+            \"name\":\"edad\",
+            \"val\":\"21\",
+            \"type\":\"i8\"
+        },
+        {
+            \"name\":\"Facebook\",
+            \"val\":\"Pepito Rodriguez del Río\",
+            \"type\":\"String\"
+        }
+    ]
+}";
+  //create file
+  let mut file=File::create(format!("{}/tangas/tanga.example.json",project_dir)).expect("Error al crear el archivo: tanga.example.json");
+  file.write_all(content.as_bytes()).expect("Error al crear el archivo.");
+
+}
+
+fn create_exec_rules(project_dir:String){
+  let content="{
+    {
+      \"name\":\"Sherlock\",
+      \"path\":\"sherlock.py\",
+      \"comment\":\"\",
+      \"date\":\"2023-03-01\",
+      \"rules\":
+      [
+          {
+              \"name\":\"Encuentra el usuario y el alias\",
+              \"command\":\" -u {twitter} -alias {alias} - \"
+          },
+          {
+              \"name\":\"Encuentra el usuario por email\",
+              \"command\":\" -email {}\"
+          }
+      ]
+  }";
+  //create file
+  let mut file=File::create(format!("{}/exec_rules/exec_rules.example.json",project_dir)).expect("Error al crear el archivo: exec_rules.example.json");
+  file.write_all(content.as_bytes()).expect("Error al crear el archivo.");
 
 }

@@ -35,7 +35,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .service(install::req_seed_setup)
+            .service(install::req_project_setup)
             // Categories
             .service(features::categories::find_all_categories)
             .service(features::categories::find_one_category)
