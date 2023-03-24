@@ -27,6 +27,7 @@ pub fn setup() {
       )", []).unwrap();
 
     // Datos de la tanga.
+    // Al momento de hacer el QUERY utilizar la función TYPEOF(val) para obtener el tipo de dato y así manejarlo mejor en RUST.
     // EJ. email, nombre, alias, etc.
     
     conn.execute("CREATE TABLE data_tangas (
@@ -42,12 +43,14 @@ pub fn setup() {
       )", []).unwrap();
 
     // Listado de scripts
+    // Status: 0- No instalado / 1- Instalado /3 Error
 
     conn.execute("CREATE TABLE scripts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name VARCHAR(50) NOT NULL,
       path VARCHAR(255) NOT NULL,
       comment TEXT,
+      status INTEGER NOT NULL,
       created_at TEXT NOT NULL,
       updated_at TEXT NULL,
       is_deleted BOOLEAN NOT NULL,
@@ -72,15 +75,11 @@ pub fn setup() {
     // CUSTOM = Crea una regla especial de ejecución.
 
     // Todas estas reglas se almacenan en un log de ejecución.
-
-    // todo: Acá debería ver como enlazo los datos con los comandos.
     
-    conn.execute("CREATE TABLE scripts_exe_rules (
+    conn.execute("CREATE TABLE scripts_exec_rules (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       id_script INTEGER NOT NULL,
       name VARCHAR(50) NOT NULL,
-      path VARCHAR(255) NOT NULL,
-      comment TEXT NOT NULL,
       created_at TEXT NOT NULL,
       updated_at TEXT NULL,
       is_deleted BOOLEAN NOT NULL,
@@ -88,12 +87,25 @@ pub fn setup() {
           REFERENCES scripts (id)
     )", []).unwrap();
 
+    // Estatabla vincula las reglas de ejecución con la data
+
+    conn.execute("CREATE TABLE exec_rules_2_data (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id_exec_rule INTEGER NOT NULL,
+      id_data INTEGER NOT NULL,
+      is_deleted BOOLEAN NOT NULL,
+      FOREIGN KEY (id_exec_rule)
+          REFERENCES scripts_exec_rules (id)
+      FOREIGN KEY (id_data)
+          REFERENCES data_tangas (id)
+    )", []).unwrap();
+
     // Log de ejecuciones. Almacena los comandos y si guardó un archivo.
     
-    conn.execute("CREATE TABLE log_exe (
+    conn.execute("CREATE TABLE log_exec (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       id_script INTEGER NOT NULL,
-      id_exe_rule INTEGER NOT NULL,
+      id_exec_rule INTEGER NOT NULL,
       created_at TEXT NOT NULL,
       is_deleted BOOLEAN NOT NULL,
       FOREIGN KEY (id_script)
