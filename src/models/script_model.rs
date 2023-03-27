@@ -9,6 +9,22 @@ pub struct Script{
     pub is_deleted:bool,
 }
 
+#[derive(Debug,serde::Serialize,serde::Deserialize)]
+pub struct Rule{
+    pub name:String,
+    pub comment:String,
+    pub args:String,
+}
+
+#[derive(Debug,serde::Serialize,serde::Deserialize)]
+pub struct ExecRule{
+    pub name:String,
+    pub path:String,
+    pub comment:String,
+    pub date:String,
+    pub rules:Vec<Rule>,
+}
+
 pub trait SQLScript {
     fn get_query_insert() -> String{
         format!("INSERT INTO scripts (name,created_at,updated_at,is_deleted) VALUES (?1,datetime('now'),datetime('now'),false)")

@@ -43,6 +43,7 @@ async fn main() -> std::io::Result<()> {
 
             // Scripts
             .service(features::scripts::find_all_scripts)
+            .service(features::scripts::execute_one_script)
 
             // STATIC
             .service(fs::Files::new("/","./ui").index_file("index.html"))

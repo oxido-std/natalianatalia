@@ -5,11 +5,8 @@ use rusqlite::{ Connection};
 use crate::models::tanga_model::SQLTanga;
 
 use super::super::db_conn::get_db_connection;
+use super::super::helpers::{load_file_json};
 use super::super::models::tanga_model::{Tanga,DtoTanga};
-
-fn load_file(){
-    
-}
 
 #[get("/tangas")]
 async fn find_all_tangas() -> impl Responder {
