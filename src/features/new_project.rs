@@ -8,7 +8,7 @@ use serde_json::json;
 // use super::db_conn::get_db_connection;
 
 #[get("/new_project/")]
-pub async fn req_project_setup() -> impl Responder {
+pub async fn project_setup() -> impl Responder {
   setup();
   const MESSAGE: &str = "Nuevo proyecto creado.";
 

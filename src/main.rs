@@ -4,9 +4,9 @@ use actix_web::{App, HttpServer };
 use dotenv::dotenv;
 use std::env;
 
-mod install;
 mod features;
 mod db_conn;
+mod helpers;
 mod models;
 
 #[actix_web::main]
@@ -27,21 +27,23 @@ async fn main() -> std::io::Result<()> {
     }
     env_logger::init();
 
-    println!("🦀-----------------------------------------------------------🦀");
-    println!("                  🪙 {} [{}]",APP_NAME,APP_VERSION);
+    println!("👮-----------------------------------------------------------👮");
+    println!("                  📜 {} [{}]",APP_NAME,APP_VERSION);
     println!("   🚀 Server started successfully at http://{}:{}",server_host,server_port);
     println!("   🔗 View in webbrowser at http://{}:{}/",server_host,server_port);
-    println!("🦀-----------------------------------------------------------🦀");
+    println!("👮-----------------------------------------------------------👮");
 
     HttpServer::new(move || {
         App::new()
-            .service(install::req_project_setup)
-            // Categories
-            .service(features::categories::find_all_categories)
-            .service(features::categories::find_one_category)
-            .service(features::categories::create_category)
-            .service(features::categories::update_category)
-            .service(features::categories::delete_category)
+            // Projects
+            .service(features::new_project::project_setup)
+
+            // Tangas
+            .service(features::tangas::find_all_tangas)
+
+            // Scripts
+            .service(features::scripts::find_all_scripts)
+
             // STATIC
             .service(fs::Files::new("/","./ui").index_file("index.html"))
             .wrap(Logger::default())
