@@ -29,17 +29,10 @@ async fn execute_one_script() -> impl Responder {
     
     let rules:ScriptFile=ScriptFile::new(path,file_name);
     
-    // dbg!(&rules);
-    dbg!(&rules.name);
-    dbg!(&rules.path);
-    dbg!(&rules.rules);
-    
     dbg!("ejecuta rule 0");
-    rules.execute(0);
-    // dbg!("ejecuta rule 1");
-    // rules.execute(1);
-    dbg!("ejecuta rule 2");
-    rules.execute(2);
+    // rules.execute(0);
+    dbg!("ejecuta rule 1");
+    rules.execute(1);
 
     HttpResponse::Ok().json(json!({"status": "200","scripts": "Rules"}))
 }

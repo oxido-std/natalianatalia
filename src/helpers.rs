@@ -1,6 +1,4 @@
 use std::fs;
-// use std::fs::File;
-// use std::io::prelude::*;
 
 pub fn load_file_json(path:String,file_name: String) -> String{
 
