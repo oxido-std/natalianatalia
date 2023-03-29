@@ -1,28 +1,12 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug,serde::Serialize)]
+#[derive(Debug,Serialize)]
 pub struct Script{
     pub id:i64,
     pub name:String,
     pub created_at:String,
     pub updated_at:String,
     pub is_deleted:bool,
-}
-
-#[derive(Debug,serde::Serialize,serde::Deserialize)]
-pub struct Rule{
-    pub name:String,
-    pub comment:String,
-    pub args:String,
-}
-
-#[derive(Debug,serde::Serialize,serde::Deserialize)]
-pub struct ExecRule{
-    pub name:String,
-    pub path:String,
-    pub comment:String,
-    pub date:String,
-    pub rules:Vec<Rule>,
 }
 
 pub trait SQLScript {

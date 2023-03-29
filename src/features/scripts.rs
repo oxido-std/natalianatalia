@@ -1,53 +1,13 @@
 use actix_web::{get,post,patch,delete, HttpResponse, Responder, web};
 
-use std::process::Command;
-use std::path::PathBuf;
-use std::env;
 use serde_json::json;
 
 use rusqlite::{ Connection};
 
-use crate::models::script_model::SQLScript;
-
 use super::super::db_conn::get_db_connection;
-use super::super::helpers::{load_file_json};
-use super::super::models::script_model::{Script,ExecRule,Rule,DtoScript};
+use super::super::models::script_model::{Script,SQLScript,DtoScript};
+use super::super::models::scriptfile_model::{ScriptFile};
 
-async fn execute(path:String){
-    let output = Command::new(path)
-        // .args(&["-sS", "-T4", "-p1-100", "localhost"])
-        .output()
-        .expect("failed to execute process");
-
-    let result = String::from_utf8_lossy(&output.stdout);
-
-    dbg!(&output);
-    println!("ipconfig output:\n{}", result);
-}
-
-async fn execute_py(path:String){
-    dbg!("Execute python");
-    
-    let exe_path=env::current_dir().unwrap();
-    let exe_path=exe_path.to_str().unwrap().replace("\\", "/");
-    let script_path=format!("{}/{}",exe_path,path);
-    
-    // dbg!(&script_path);
-    // let absolute_path = PathBuf::from(script_path);
-    // dbg!(&absolute_path);
-    // let absolute_path = absolute_path.canonicalize().unwrap();
-    // dbg!(&absolute_path);
-    // let script_path = absolute_path.to_str().unwrap();
-    // dbg!(&script_path);
-
-    let output = Command::new(format!("program {}",script_path))
-        // .arg(script_path)
-        .output()
-        .expect("Fallo al ejecutar el comando");
-    
-    dbg!(&output);
-    println!("{}", String::from_utf8_lossy(&output.stdout));
-}
 
 #[get("/scripts")]
 async fn find_all_scripts() -> impl Responder {
@@ -63,16 +23,23 @@ async fn find_all_scripts() -> impl Responder {
 #[get("/scripts/execute")]
 async fn execute_one_script() -> impl Responder {
 
+    // Esto es de ejemplo porque estos datos se obtienen de la base de datos
     let path=String::from("project_example/exec_rules");
-    let rules=load_file_json(path,String::from("hello_world.execrule.json"));
-    let rules: ExecRule=serde_json::from_str(&rules).expect("Error al convertir el archivo a json");
-    dbg!(&rules);
+    let file_name=String::from("hello_world.execrule.json");
+    
+    let rules:ScriptFile=ScriptFile::new(path,file_name);
+    
+    // dbg!(&rules);
     dbg!(&rules.name);
     dbg!(&rules.path);
-    // execute_py(rules.path).await;
-
-    execute(rules.path).await;
-
+    dbg!(&rules.rules);
+    
+    dbg!("ejecuta rule 0");
+    rules.execute(0);
+    // dbg!("ejecuta rule 1");
+    // rules.execute(1);
+    dbg!("ejecuta rule 2");
+    rules.execute(2);
 
     HttpResponse::Ok().json(json!({"status": "200","scripts": "Rules"}))
 }
